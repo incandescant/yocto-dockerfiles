@@ -16,6 +16,8 @@
 
 FROM centos:centos7
 
+ADD http://downloads.yoctoproject.org/releases/yocto/yocto-2.2/buildtools/x86_64-buildtools-nativesdk-standalone-2.2.sh /buildtools.sh
+
 RUN yum -y install epel-release && \
     yum -y update && \
     yum -y install \
@@ -55,8 +57,12 @@ RUN yum -y install epel-release && \
     useradd -u 1000 -g yoctouser -m yoctouser && \
     mkdir -p /home/yoctouser/.vnc && \
     echo "" | vncpasswd -f > /home/yoctouser/.vnc/passwd && \
-    chown -R yoctouser:yoctouser /home/yoctouser/.vnc && \
-    chmod 0600 /home/yoctouser/.vnc/passwd
+    chmod 0600 /home/yoctouser/.vnc/passwd && \
+    chmod +x /buildtools.sh && \
+    echo -e "/opt/buildtools\ny\n" | /buildtools.sh && \
+    echo '. /opt/buildtools/environment-setup*' >> /etc/profile.d/buildtools.sh && \
+    chown -R yoctouser:yoctouser /home/yoctouser && \
+    rm -f /buildtools.sh
 
 USER yoctouser
 WORKDIR /home/yoctouser
